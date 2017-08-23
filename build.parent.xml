@@ -1,0 +1,216 @@
+<project name="super" basedir=".">
+
+
+    <!-- JUST FOR DISABLING ERRORS HIGHLIGHTING -->
+
+    <!-- ====================================== -->
+
+    <property file="./build.${user.name}.properties"/>
+
+    <condition property="IS_WINDOWS">
+        <os family="windows"/>
+    </condition>
+
+    <condition property="IS_UNIX">
+        <os family="unix"/>
+    </condition>
+
+
+    <path id="yuicompressor.classpath">
+        <fileset dir="./_lib">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <taskdef name="http" classname="org.missinglink.ant.task.http.HttpClientTask">
+        <classpath>
+            <path refid="yuicompressor.classpath"/>
+        </classpath>
+    </taskdef>
+
+    <path id="classpath">
+        <fileset dir="alfresco/src/lib">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="_reload-resources">
+        <copy todir="${alfresco.dir}/WEB-INF/lib" failonerror="false" overwrite="true">
+            <fileset dir="${param.projectRepoPath}/target/${alfresco.module}/lib">
+                <include name="**/?*.*"/>
+            </fileset>
+        </copy>
+
+        <copy todir="${alfresco.dir}/WEB-INF/classes/alfresco"
+              overwrite="true">
+            <fileset dir="${param.projectRepoPath}/src/main/amp/config/alfresco">
+                <include name="**/*.*"/>
+            </fileset>
+        </copy>
+
+        <copy todir="${share.dir}/WEB-INF/lib"
+              failonerror="false" overwrite="true">
+            <fileset dir="${param.projectSharePath}/target/${share.module}/lib">
+                <include name="**/?*.*"/>
+            </fileset>
+            <!--<fileset dir="${param.projectSharePath}/target/${share.module}/lib">-->
+                <!--<include name="**/?*.*"/>-->
+            <!--</fileset>-->
+        </copy>
+
+
+        <copy taskname="copy configs" todir="${share.dir}/WEB-INF/classes" overwrite="true">
+            <fileset dir="${param.projectSharePath}/src/main/amp/config">
+                <include name="**/?*.*"/>
+            </fileset>
+        </copy>
+
+        <!--<copy taskname="override configs" todir="${share.dir}/WEB-INF/classes" overwrite="true">-->
+            <!--<fileset dir="${param.shareModule}/src/main/amp/config">-->
+                <!--<include name="**/?*.*"/>-->
+            <!--</fileset>-->
+        <!--</copy>-->
+
+        <copy taskname="copy web files" todir="${share.dir}" overwrite="true">
+            <fileset dir="${param.projectSharePath}/src/main/amp/web">
+                <include name="**/?*.*"/>
+                <exclude name="**/web.xml"/>
+            </fileset>
+
+        </copy>
+
+        <!--<copy taskname="override web files" todir="${share.dir}" overwrite="true">-->
+
+            <!--<fileset dir="${param.shareModule}/src/main/amp/web">-->
+                <!--<include name="**/?*.*"/>-->
+                <!--<exclude name="**/web.xml"/>-->
+            <!--</fileset>-->
+        <!--</copy>-->
+
+        <http url="http://localhost:${tomcat.port}/share/page/index"
+              method="POST"
+              printrequest="false"
+              printrequestheaders="false"
+              printresponse="false"
+              printresponseheaders="false"
+              expected="200"
+              failonunexpected="true">
+            <credentials username="admin" password="admin"/>
+            <query>
+                <parameter name="reset" value="on"/>
+            </query>
+        </http>
+
+        <http url="http://localhost:${tomcat.port}/alfresco/service/index"
+              method="POST"
+              printrequest="false"
+              printrequestheaders="false"
+              printresponse="false"
+              printresponseheaders="false"
+              expected="200"
+              failonunexpected="true">
+            <credentials username="admin" password="admin"/>
+            <query>
+                <parameter name="reset" value="on"/>
+            </query>
+        </http>
+
+        <http url="http://localhost:${tomcat.port}/share/page/caches/dependency/clear"
+              method="POST"
+              printrequest="false"
+              printrequestheaders="false"
+              printresponse="false"
+              printresponseheaders="false"
+              expected="200"
+              failonunexpected="true">
+            <credentials username="admin" password="admin"/>
+            <query>
+                <parameter name="reset" value="on"/>
+            </query>
+        </http>
+    </target>
+
+
+    <target name="_build.amp">
+        <antcall target="_build.amp.windows">
+            <param name="param.module" value="${param.module}"/>
+        </antcall>
+        <antcall target="_build.amp.linux">
+            <param name="param.module" value="${param.module}"/>
+        </antcall>
+    </target>
+
+
+    <target name="_build.amp.windows" if="IS_WINDOWS">
+        <!--under windows-->
+        <exec executable="${build.executable}" dir="${param.module}">
+            <arg value="/c"/>
+            <arg line="mvn -c clean package"/>
+        </exec>
+    </target>
+
+    <target name="_build.amp.linux" if="IS_UNIX">
+        <exec command="mvn -f ${param.module}/pom.xml clean package"/>
+    </target>
+
+    <target name="_full.rebuild.share.amp">
+        <!--build core share module-->
+        <antcall target="_build.amp">
+            <param name="param.module" value="${param.coreModule}"/>
+        </antcall>
+
+    </target>
+
+    <!--=============================================================-->
+    <target name="_copy_amps_to_server">
+        <copy todir="${server.root.dir}/amps_share/" overwrite="true"
+              file="${param.shareModule}/target/${share.amp.name}.amp"/>
+        <copy todir="${server.root.dir}/amps/" overwrite="true"
+              file="${param.alfrescoModule}/target/${repo.amp.name}.amp"/>
+    </target>
+
+    <target name="_clean-apply-amps">
+        <antcall target="_ifFolderMissing"/>
+        <antcall target="_clean-webaps-folder"/>
+        <antcall target="_ifFolderExist"/>
+    </target>
+
+    <!--description="apply amps only if we have a copy webapps folder"-->
+    <target name="_ifFolderExist" depends="_dir.check" if="dir.exists">
+        <echo>${clean.tomcat.webapps.dir} exists, apply amps</echo>
+        <exec executable="${server.root.dir}/bin/apply_amps.${shell.file.ext}" dir="${server.root.dir}/bin">
+            <arg value="nowait"/>
+            <arg value="-force"/>
+        </exec>
+    </target>
+
+    <!--description="before clean apply make a copy"-->
+    <target name="_ifFolderMissing" depends="_dir.check" unless="dir.exists">
+        <echo>${clean.tomcat.webapps.dir} missing, make a copy"</echo>
+        <antcall target="__before_clean_make_a_copy"/>
+    </target>
+
+    <target name="_dir.check">
+        <condition property="dir.exists">
+            <available file="${clean.tomcat.webapps.dir}" type="dir"/>
+        </condition>
+    </target>
+
+
+    <target name="_clean-webaps-folder" if="${full.restart}">
+        <echo>clear webaps folder</echo>
+        <delete dir="${tomcat.dir}/webapps"/>
+        <copy todir="${tomcat.dir}">
+            <fileset dir="${clean.tomcat.webapps.dir}"/>
+        </copy>
+    </target>
+
+    <!--description="make a copy webaps folder"-->
+    <target name="__before_clean_make_a_copy">
+        <copy todir="${clean.tomcat.webapps.dir}/webapps">
+            <fileset dir="${tomcat.dir}/webapps"/>
+        </copy>
+    </target>
+
+
+</project>

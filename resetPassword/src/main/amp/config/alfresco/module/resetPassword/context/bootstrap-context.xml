@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+
+    <!--uploads at first time deploy (and when no exists???)-->
+    <bean id="fs.reset.bootstrapSpaces" class="org.alfresco.repo.module.ImporterModuleComponent"
+          parent="module.baseComponent">
+        <property name="moduleId" value="resetPassword"/>
+        <property name="name" value="bootstrapSpaces"/>
+        <property name="description" value="Initial email templates"/>
+        <property name="sinceVersion" value="1.0"/>
+        <property name="appliesFromVersion" value="1.0"/>
+        <!-- Data properties -->
+        <property name="importer" ref="spacesBootstrap"/>
+        <property name="bootstrapViews">
+            <list>
+                <props>
+                    <prop key="path">/${spaces.company_home.childname}/${spaces.dictionary.childname}/${spaces.templates.email.childname}/cm:workflownotification</prop>
+                    <prop key="location">alfresco/module/resetPassword/bootstrap/config_reset_pass_email_templates.xml</prop>
+                </props>
+            </list>
+        </property>
+    </bean>
+	
+
+
+</beans>

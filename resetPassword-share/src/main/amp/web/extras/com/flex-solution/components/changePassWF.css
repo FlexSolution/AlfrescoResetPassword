@@ -1,0 +1,44 @@
+
+.parent-block {
+    top: 50%;
+    left: 50%;
+    width: 30em;
+    height: 14em;
+    position: absolute;
+    margin-left: -15em;
+    margin-top: -7em;
+    padding: 1em;
+    box-shadow: 0.33px 2px 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: #ffffff;
+}
+
+.fields {
+    width: 100%;
+    float: left;
+    max-width: 30em;
+}
+
+.row {
+    clear: both;
+    text-align: right;
+    padding: 5px;
+    line-height:25px;
+}
+
+.label {
+    float: left;
+    padding-right:10px;
+}
+
+
+div.buttons{
+    margin-top: 1em;
+}
+
+div#comp-logo{
+    width: 100%;
+    background-size: contain;
+    margin-bottom: 1em;
+}
