@@ -36,7 +36,7 @@
 
     <target name="_reload-resources">
         <copy todir="${alfresco.dir}/WEB-INF/lib" failonerror="false" overwrite="true">
-            <fileset dir="${param.projectRepoPath}/target/${alfresco.module}/lib">
+            <fileset dir="${param.projectRepoPath}/target/${maven.target.alfresco.dir}/lib">
                 <include name="**/?*.*"/>
             </fileset>
         </copy>
@@ -50,7 +50,7 @@
 
         <copy todir="${share.dir}/WEB-INF/lib"
               failonerror="false" overwrite="true">
-            <fileset dir="${param.projectSharePath}/target/${share.module}/lib">
+            <fileset dir="${param.projectSharePath}/target/${maven.target.share.dir}/lib">
                 <include name="**/?*.*"/>
             </fileset>
             <!--<fileset dir="${param.projectSharePath}/target/${share.module}/lib">-->

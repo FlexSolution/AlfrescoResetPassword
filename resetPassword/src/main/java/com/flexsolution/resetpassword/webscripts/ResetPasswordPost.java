@@ -1,29 +1,62 @@
 package com.flexsolution.resetpassword.webscripts;
 
+import com.flexsolution.resetpassword.patch.CopyStructurePatch;
 import com.flexsolution.resetpassword.util.WorkflowHelper;
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.tenant.TenantContextHolder;
 import org.alfresco.repo.workflow.WorkflowModel;
-import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.model.FileFolderService;
+import org.alfresco.service.cmr.repository.*;
+import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.workflow.*;
+import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.surf.util.Content;
 import org.springframework.extensions.webscripts.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class ResetPasswordPost extends DeclarativeWebScript {
 
+    @Autowired
+    private ContentService contentService;
+
+    @Autowired
+    private NodeService nodeService;
+
+    @Autowired
+    private Repository repository;
+
+    @Autowired
+    private SearchService searchService;
+
+    @Autowired
+    private NamespaceService namespaceService;
+
+    @Autowired
+    private FileFolderService fileFolderService;
+
     private WorkflowService workflowService;
     private PersonService personService;
+
+    private static final String RESET_PASS_EMAIL_TEMPLATE_XPATH = "app:dictionary/app:email_templates/cm:workflownotification/cm:reset-password.ftl";
+    private static final String WORKFLOW_NOTIFICATION_XPATH = "app:dictionary/app:email_templates/cm:workflownotification";
+
+    private static final String RESET_PASS_FILE_NAME = "reset-password.ftl";
 
     private static final Logger logger = Logger.getLogger(ResetPasswordPost.class);
 
@@ -36,6 +69,8 @@ public class ResetPasswordPost extends DeclarativeWebScript {
         AuthenticationUtil.clearCurrentSecurityContext();
 
         final String tenantDomain = AuthenticationUtil.getUserTenant(userName).getSecond();
+
+        createEmailTemplateIfNotExists(tenantDomain);
 
         TenantContextHolder.setTenantDomain(tenantDomain);
 
@@ -52,6 +87,101 @@ public class ResetPasswordPost extends DeclarativeWebScript {
         return null;
     }
 
+    private void createEmailTemplateIfNotExists(String tenantDomain){
+        if(!isEmailTemplateExists(tenantDomain)){
+            addEmailTemplate(tenantDomain,getEmailTemplateFromAdminTenant());
+        }
+    }
+
+    private boolean isEmailTemplateExists(String tenantDomain){
+        final boolean [] isEmailTemplateExist = {false};
+
+        AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Object>() {
+            @Override
+            public Object doWork () throws Exception {
+
+                TenantContextHolder.setTenantDomain(tenantDomain);
+
+                NodeRef companyHome = repository.getCompanyHome();
+
+                List<NodeRef> emailTemplateFiles = searchService.selectNodes(companyHome, RESET_PASS_EMAIL_TEMPLATE_XPATH, null, namespaceService, false);
+
+                if(!emailTemplateFiles.isEmpty()){
+                    isEmailTemplateExist[0] = true;
+                }
+
+                return null;
+            }
+        });
+        return isEmailTemplateExist[0];
+    }
+
+    private String getEmailTemplateFromAdminTenant(){
+        final StringBuilder emailTemplateContent = new StringBuilder("");
+
+        final String adminTenant = "";
+
+        AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Object>() {
+            @Override
+            public Object doWork() throws Exception {
+
+                TenantContextHolder.setTenantDomain(adminTenant);
+
+                NodeRef companyHome = repository.getCompanyHome();
+
+                List<NodeRef> emailTemplateFiles = searchService.selectNodes(companyHome, RESET_PASS_EMAIL_TEMPLATE_XPATH, null, namespaceService, false);
+
+                NodeRef emailTemplate = emailTemplateFiles.get(0);
+
+                ContentReader reader = contentService.getReader(emailTemplate,ContentModel.PROP_CONTENT);
+
+                try (InputStream originalInputStream = reader.getContentInputStream()) {
+
+                    int c;
+
+                    while ((c = originalInputStream.read()) != -1){
+                        emailTemplateContent.append((char)c);
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                return null;
+            }
+        });
+        return emailTemplateContent.toString();
+    }
+
+    private void addEmailTemplate(String tenantDomain,String emailTemplateContent){
+
+            AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Object>() {
+                @Override
+                public Object doWork () throws Exception {
+
+                    TenantContextHolder.setTenantDomain(tenantDomain);
+
+                    NodeRef companyHome = repository.getCompanyHome();
+
+                    List<NodeRef> workflowNotifFolders = searchService.selectNodes(companyHome, WORKFLOW_NOTIFICATION_XPATH, null, namespaceService, false);
+
+                    Map<QName, Serializable> properties = new HashMap<>();
+                    properties.put(ContentModel.PROP_NAME, RESET_PASS_FILE_NAME);
+
+                    ChildAssociationRef newEmailTemplateCreated = nodeService.createNode(workflowNotifFolders.get(0),
+                            ContentModel.ASSOC_CONTAINS,
+                            QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, QName.createValidLocalName(RESET_PASS_FILE_NAME)),
+                            ContentModel.TYPE_CONTENT,
+                            properties);
+                    ContentWriter invWriter = contentService.getWriter(newEmailTemplateCreated.getChildRef(), ContentModel.PROP_CONTENT, true);
+
+                    invWriter.putContent(emailTemplateContent);
+
+                    return null;
+                }
+            });
+
+
+    }
     private void startWorkFlow(final NodeRef user, final String tenantDomain) {
         AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Object>() {
             @Override
@@ -59,7 +189,7 @@ public class ResetPasswordPost extends DeclarativeWebScript {
 
                 TenantContextHolder.setTenantDomain(tenantDomain);
 
-                WorkflowDefinition workflowDefinition = workflowService.getDefinitionByName("activiti$resetPassword");
+                WorkflowDefinition workflowDefinition = workflowService.getDefinitionByName("activiti$resetPasswordFlex");
 
                 if (workflowDefinition == null) {
                     workflowDefinition = WorkflowHelper.deployResetPasswordWorkflow();
