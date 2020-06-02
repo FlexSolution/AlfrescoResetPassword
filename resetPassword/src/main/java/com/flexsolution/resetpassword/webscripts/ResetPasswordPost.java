@@ -228,7 +228,7 @@ public class ResetPasswordPost extends DeclarativeWebScript {
                 NodeRef user = personService.getPersonOrNull(userName);
                 if (user == null) {
                     logger.error("Failed to find user with username " + userName);
-                    throw new WebScriptException(404, "User with username " + userName + " not found");
+                    throw new WebScriptException(404, "error.userNotFound");
                 }
                 return user;
             }
