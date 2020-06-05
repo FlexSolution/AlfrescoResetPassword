@@ -89,7 +89,7 @@ public class ResetPasswordPost extends DeclarativeWebScript {
 
     private void createEmailTemplateIfNotExists(String tenantDomain){
         if(!isEmailTemplateExists(tenantDomain)){
-            addEmailTemplate(tenantDomain,getEmailTemplateFromAdminTenant());
+            addEmailTemplate(tenantDomain);
         }
     }
 
@@ -116,18 +116,33 @@ public class ResetPasswordPost extends DeclarativeWebScript {
         return isEmailTemplateExist[0];
     }
 
-    private String getEmailTemplateFromAdminTenant(){
-        final StringBuilder emailTemplateContent = new StringBuilder("");
-
-        final String adminTenant = "";
+    private void addEmailTemplate(String tenantDomain){
 
         AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Object>() {
             @Override
             public Object doWork() throws Exception {
 
-                TenantContextHolder.setTenantDomain(adminTenant);
+                TenantContextHolder.setTenantDomain(tenantDomain);
 
                 NodeRef companyHome = repository.getCompanyHome();
+
+                List<NodeRef> workflowNotifFolders = searchService.selectNodes(companyHome, WORKFLOW_NOTIFICATION_XPATH, null, namespaceService, false);
+
+                Map<QName, Serializable> properties = new HashMap<>();
+                properties.put(ContentModel.PROP_NAME, RESET_PASS_FILE_NAME);
+
+                ChildAssociationRef newEmailTemplateCreated = nodeService.createNode(workflowNotifFolders.get(0),
+                        ContentModel.ASSOC_CONTAINS,
+                        QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, QName.createValidLocalName(RESET_PASS_FILE_NAME)),
+                        ContentModel.TYPE_CONTENT,
+                        properties);
+                ContentWriter invWriter = contentService.getWriter(newEmailTemplateCreated.getChildRef(), ContentModel.PROP_CONTENT, true);
+
+                String adminTenant = "";
+
+                TenantContextHolder.setTenantDomain(adminTenant);
+
+                companyHome = repository.getCompanyHome();
 
                 List<NodeRef> emailTemplateFiles = searchService.selectNodes(companyHome, RESET_PASS_EMAIL_TEMPLATE_XPATH, null, namespaceService, false);
 
@@ -135,52 +150,13 @@ public class ResetPasswordPost extends DeclarativeWebScript {
 
                 ContentReader reader = contentService.getReader(emailTemplate,ContentModel.PROP_CONTENT);
 
-                try (InputStream originalInputStream = reader.getContentInputStream()) {
+                TenantContextHolder.setTenantDomain(tenantDomain);
 
-                    int c;
-
-                    while ((c = originalInputStream.read()) != -1){
-                        emailTemplateContent.append((char)c);
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                invWriter.putContent(reader);
 
                 return null;
             }
         });
-        return emailTemplateContent.toString();
-    }
-
-    private void addEmailTemplate(String tenantDomain,String emailTemplateContent){
-
-            AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Object>() {
-                @Override
-                public Object doWork () throws Exception {
-
-                    TenantContextHolder.setTenantDomain(tenantDomain);
-
-                    NodeRef companyHome = repository.getCompanyHome();
-
-                    List<NodeRef> workflowNotifFolders = searchService.selectNodes(companyHome, WORKFLOW_NOTIFICATION_XPATH, null, namespaceService, false);
-
-                    Map<QName, Serializable> properties = new HashMap<>();
-                    properties.put(ContentModel.PROP_NAME, RESET_PASS_FILE_NAME);
-
-                    ChildAssociationRef newEmailTemplateCreated = nodeService.createNode(workflowNotifFolders.get(0),
-                            ContentModel.ASSOC_CONTAINS,
-                            QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, QName.createValidLocalName(RESET_PASS_FILE_NAME)),
-                            ContentModel.TYPE_CONTENT,
-                            properties);
-                    ContentWriter invWriter = contentService.getWriter(newEmailTemplateCreated.getChildRef(), ContentModel.PROP_CONTENT, true);
-
-                    invWriter.putContent(emailTemplateContent);
-
-                    return null;
-                }
-            });
-
-
     }
     private void startWorkFlow(final NodeRef user, final String tenantDomain) {
         AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Object>() {
