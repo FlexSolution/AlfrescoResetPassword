@@ -27,7 +27,7 @@
     </bean>
 
 
-    <bean class="com.flexsolution.resetpassword.util.Sudo" parent="baseJavaScriptExtension">
+    <bean id="resetPassword.Sudo" class="com.flexsolution.resetpassword.util.Sudo" parent="baseJavaScriptExtension">
         <property name="extensionName" value="sudo"/>
     </bean>
 

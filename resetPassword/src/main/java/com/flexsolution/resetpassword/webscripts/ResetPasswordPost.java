@@ -1,13 +1,11 @@
 package com.flexsolution.resetpassword.webscripts;
 
-import com.flexsolution.resetpassword.patch.CopyStructurePatch;
 import com.flexsolution.resetpassword.util.WorkflowHelper;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.tenant.TenantContextHolder;
 import org.alfresco.repo.workflow.WorkflowModel;
-import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.PersonService;
@@ -21,14 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.surf.util.Content;
 import org.springframework.extensions.webscripts.*;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public class ResetPasswordPost extends DeclarativeWebScript {
 
@@ -46,9 +41,6 @@ public class ResetPasswordPost extends DeclarativeWebScript {
 
     @Autowired
     private NamespaceService namespaceService;
-
-    @Autowired
-    private FileFolderService fileFolderService;
 
     private WorkflowService workflowService;
     private PersonService personService;
@@ -88,17 +80,18 @@ public class ResetPasswordPost extends DeclarativeWebScript {
     }
 
     private void createEmailTemplateIfNotExists(String tenantDomain){
-        if(!isEmailTemplateExists(tenantDomain)){
-            addEmailTemplate(tenantDomain);
-        }
-    }
-
-    private boolean isEmailTemplateExists(String tenantDomain){
-        final boolean [] isEmailTemplateExist = {false};
-
         AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Object>() {
             @Override
             public Object doWork () throws Exception {
+                if(!emailTemplateExists(tenantDomain)){
+                    addEmailTemplate(tenantDomain);
+                }
+                return null;
+            }
+        });
+    }
+
+    private boolean emailTemplateExists(String tenantDomain){
 
                 TenantContextHolder.setTenantDomain(tenantDomain);
 
@@ -106,32 +99,21 @@ public class ResetPasswordPost extends DeclarativeWebScript {
 
                 List<NodeRef> emailTemplateFiles = searchService.selectNodes(companyHome, RESET_PASS_EMAIL_TEMPLATE_XPATH, null, namespaceService, false);
 
-                if(!emailTemplateFiles.isEmpty()){
-                    isEmailTemplateExist[0] = true;
-                }
-
-                return null;
-            }
-        });
-        return isEmailTemplateExist[0];
+                return !emailTemplateFiles.isEmpty();
     }
 
     private void addEmailTemplate(String tenantDomain){
-
-        AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Object>() {
-            @Override
-            public Object doWork() throws Exception {
 
                 TenantContextHolder.setTenantDomain(tenantDomain);
 
                 NodeRef companyHome = repository.getCompanyHome();
 
-                List<NodeRef> workflowNotifFolders = searchService.selectNodes(companyHome, WORKFLOW_NOTIFICATION_XPATH, null, namespaceService, false);
+                List<NodeRef> workflowNotificationFolder = searchService.selectNodes(companyHome, WORKFLOW_NOTIFICATION_XPATH, null, namespaceService, false);
 
                 Map<QName, Serializable> properties = new HashMap<>();
                 properties.put(ContentModel.PROP_NAME, RESET_PASS_FILE_NAME);
 
-                ChildAssociationRef newEmailTemplateCreated = nodeService.createNode(workflowNotifFolders.get(0),
+                ChildAssociationRef newEmailTemplateCreated = nodeService.createNode(workflowNotificationFolder.get(0),
                         ContentModel.ASSOC_CONTAINS,
                         QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, QName.createValidLocalName(RESET_PASS_FILE_NAME)),
                         ContentModel.TYPE_CONTENT,
@@ -154,10 +136,8 @@ public class ResetPasswordPost extends DeclarativeWebScript {
 
                 invWriter.putContent(reader);
 
-                return null;
-            }
-        });
     }
+
     private void startWorkFlow(final NodeRef user, final String tenantDomain) {
         AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Object>() {
             @Override
