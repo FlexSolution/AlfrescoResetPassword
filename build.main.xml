@@ -1,6 +1,6 @@
-<project name="alfresco-extension" basedir=".">
+ <project name="alfresco-extension" basedir=".">
 
-    <import file="./build.parent.xml"/>
+    <import file="build.parent.xml"/>
 
     <target name="build" description="Build AMPs">
 

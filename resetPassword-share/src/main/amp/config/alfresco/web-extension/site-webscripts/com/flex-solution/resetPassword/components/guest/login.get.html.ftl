@@ -18,7 +18,3 @@
            value="${msg("button.resetPassword")}"/>
 </div>
 </@>
-
-<@markup id="footer_custom" target="footer" action="replace" scope="page">
-<div class="copy">${msg("label.copyright")}</div>
-</@markup>

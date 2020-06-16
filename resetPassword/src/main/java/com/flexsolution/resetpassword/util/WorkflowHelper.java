@@ -70,7 +70,7 @@ public class WorkflowHelper {
 
         workflowService.deployDefinition(getWorkflowDefinitionNodeRef());
 
-        return workflowService.getDefinitionByName("activiti$resetPassword");
+        return workflowService.getDefinitionByName("activiti$resetPasswordFlex");
     }
 
     private static NodeRef getWorkflowDefinitionNodeRef() {
