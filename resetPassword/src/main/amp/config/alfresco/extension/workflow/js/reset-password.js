@@ -49,7 +49,7 @@ var ResetPassword = function () {
 
         } catch (ex) {
 
-            throw "Failed to send email. Please, check outbound email configuration.";
+            throw "error.outBound";
         }
 
     };

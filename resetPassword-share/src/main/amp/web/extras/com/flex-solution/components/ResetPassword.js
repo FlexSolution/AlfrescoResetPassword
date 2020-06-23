@@ -100,11 +100,22 @@ var namespace = function (identifier) {
             failureCallback: function (resp) {
 
                 this.hideSpinner();
-                
+
+                var errMessage;
+
+                // We do this because server response is something like 503004 Wrapped Exception with status error.outBound.
+                if(resp.json.message.includes('error.outBound')){
+                    errMessage = Alfresco.util.message("error.outBound");
+                }else if(resp.json.message.includes('error.userNotFound')){
+                    errMessage = Alfresco.util.message("error.userNotFound");
+                }else{
+                    errMessage = resp.json.message;
+                }
                 Alfresco.util.PopupManager.displayPrompt(
                     {
                         title: Alfresco.util.message("error.title"),
-                        text: resp.json ? resp.json.message : resp.serverResponse || Alfresco.util.message("error.server-side")
+                        text: resp.json ? errMessage : resp.serverResponse || Alfresco.util.message("error.server-side")
+                        // text: resp.json ? resp.json.message : resp.serverResponse || Alfresco.util.message("error.server-side")
                     });
             },
 
