@@ -7,6 +7,24 @@ Alfresco Reset Password add-on is a great thing that allows you to solve missing
  - Reset password link will be expired after 24h
  - It works fine even if multitenancy feature is enabled
 
+# User's reset password manual
+
+ - Click Forgot Password button
+ 
+ ![](readme_resources/1-config.png)
+ 
+ - Enter username
+ 
+ ![](readme_resources/4-config.png)
+ 
+ - You'll receive email notification with link for changing password
+ 
+ ![](readme_resources/2-config.png)
+ 
+ - Enter your new password and confirm it.
+ 
+ ![](readme_resources/3-config.png)
+
 # Compatibility was tested on versions:
  - Alfresco 5.2
  - Alfresco 6.0.7
@@ -63,20 +81,3 @@ $ apply_amps.sh -force
 ```
 6. Start Alfresco
 
-# User's reset password manual
-
- - Click Forgot Password button
- 
- ![](readme_resources/1-config.png)
- 
- - Enter username
- 
- ![](readme_resources/4-config.png)
- 
- - You'll receive email notification with link for changing password
- 
- ![](readme_resources/2-config.png)
- 
- - Enter your new password and confirm it.
- 
- ![](readme_resources/3-config.png)
