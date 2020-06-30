@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.flex-solution</groupId>
     <artifactId>reset-password-share</artifactId>
-    <version>1.1.0.RC2</version>
+    <version>1.1.0.RC3</version>
     <name>Reset Password Share AMP</name>
     <packaging>amp</packaging>
 
