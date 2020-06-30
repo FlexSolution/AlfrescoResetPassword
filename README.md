@@ -49,3 +49,20 @@ $ apply_amps.sh -force
 ```
 6. Start Alfresco
 
+# User's reset password manual
+
+ - Click Forgot Password button
+ 
+ ![](readme_resources/1-config.png)
+ 
+ - Enter username
+ 
+ ![](readme_resources/4-config.png)
+ 
+ - You'll receive email notification with link for changing password
+ 
+ ![](readme_resources/2-config.png)
+ 
+ - Enter your new password and confirm it.
+ 
+ ![](readme_resources/3-config.png)
