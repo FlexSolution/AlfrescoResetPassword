@@ -7,7 +7,7 @@ Alfresco Reset Password add-on is a great thing that allows you to solve missing
  - Reset password link will be expired after 24h
  - It works fine even if multitenancy feature is enabled
 
-# Compatibility
+# Compatibility was tested on versions:
  - Alfresco 5.2
  - Alfresco 6.0.7
  - Alfresco 6.2.0
