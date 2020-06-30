@@ -17,6 +17,20 @@ Alfresco Reset Password add-on is a great thing that allows you to solve missing
 - Java8
 - Maven3
 
+### Required settings
+  - You have to configure Alfresco Outbound SMTP in {ALFRESCO LOCATION}/tomcat/shared/classes/alfresco-global.properties.
+  ```sh
+   mail.host={mail host}
+   mail.port={mail port}
+   mail.username={mail username}
+   mail.password={mail password}
+   mail.protocol=smtps
+   mail.smtps.starttls.enable=true
+   mail.smtps.auth=true
+   mail.from.enabled=false
+   mail.from.default={default sending email}
+   ```
+
 ### Build steps
 1. Clone repo
 ```sh
