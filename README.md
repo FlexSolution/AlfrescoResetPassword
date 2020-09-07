@@ -1,83 +1,20 @@
-# AlfrescoResetPassword
+##How to setup environment:
+You need to have installed docker and configured to use without root privileges https://docs.docker.com/install
 
-Alfresco Reset Password add-on is a great thing that allows you to solve missing capability of Alfresco to reset passwords for users who forgot owns password without contacting Administrator.
+1. Add **Remote** Debugger cofiguration.
+![](readme_resources/1-configuration.png)
 
-# Features
- - Sends email notification with a confirmation link
- - Reset password link will be expired after 24h
- - It works fine even if multitenancy feature is enabled
+1. Configure **Before launch: Tool window** and point at **start.sh** or **start.bat** as executable script.
+(files within _docker folder should be executable).
+![](readme_resources/4-configuration.png)
+![](readme_resources/2-configuration.png)
 
-# User's reset password manual
+1. Point at **logs.txt** as logs file.
+![](readme_resources/3-configuration.png)
 
- - Click Forgot Password button
- 
- ![](readme_resources/1-config.png)
- 
- - Enter username
- 
- ![](readme_resources/4-config.png)
- 
- - You'll receive email notification with link for changing password
- 
- ![](readme_resources/2-config.png)
- 
- - Enter your new password and confirm it.
- 
- ![](readme_resources/3-config.png)
+All alfresco configuration placed in **docker-compose.yml**. You can place additional configuration there if you need
 
-# Compatibility was tested on versions:
- - Alfresco 5.2
- - Alfresco 6.0.7
- - Alfresco 6.2.0
+To stop docker containers use **stop-all.sh** or **stop-all.bat** script.
+**start.sh|bat** script also stops containers and starts again
 
-# How to build
-### The following tools must be installed:
-- Java8
-- Maven3
-
-### Required settings
-  - You have to configure Alfresco Outbound SMTP in {ALFRESCO LOCATION}/tomcat/shared/classes/alfresco-global.properties.
-  ```sh
-   mail.host={mail host}
-   mail.port={mail port}
-   mail.username={mail username}
-   mail.password={mail password}
-   mail.protocol=smtps
-   mail.smtps.starttls.enable=true
-   mail.smtps.auth=true
-   mail.from.enabled=false
-   mail.from.default={default sending email}
-   ```
-
-### Build steps
-1. Clone repo
-```sh
-$ git clone https://github.com/FlexSolution/AlfrescoResetPassword.git
-```
-2. Compile repo amp 
-
-```sh
-$ cd ResetPasswordAddon/resetPassword
-$ mvn clean package
-```
-
-3. Compile share amp
-
-```sh
-$ cd ../resetPassword-share
-$ mvn clean package
-```
-
-# How to deploy add-on to Alfresco
-
-1. Compile AMPs for alfresco and share how described above
-2. Stop Alfresco
-3. Copy file ResetPasswordAddon/resetPassword/target/reset-password-repo.amp into ${Alfresco_HOME}/amps folder
-4. Copy file ResetPasswordAddon/resetPassword-share/target/reset-password-share.amp into ${Alfresco_HOME}/amps_share folder
-5. Apply AMPs by executing command from command line
-```sh
-$ cd ${Alfresco_HOME}/bin
-$ apply_amps.sh -force
-```
-6. Start Alfresco
-
+To debug Share app java code create new **Remote** configuration. Use port 5006

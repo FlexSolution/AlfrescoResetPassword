@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<Context>
+    <Resources className="org.apache.catalina.webresources.StandardRoot">
+        <PreResources className="org.apache.catalina.webresources.DirResourceSet"
+                      base="/usr/local/tomcat/webapps/share/development/classes"
+                      webAppMount="/WEB-INF/classes"/>
+        <PreResources className="org.apache.catalina.webresources.DirResourceSet"
+                      base="/usr/local/tomcat/webapps/share/development/web"
+                      webAppMount="/"/>
+        <JarResources className="org.apache.catalina.webresources.DirResourceSet"
+                      base="/usr/local/tomcat/webapps/share/development/lib"
+                      webAppMount="/WEB-INF/lib"/>
+    </Resources>
+</Context>
+
