@@ -1,0 +1,14 @@
+{
+  "name": "test_end2end",
+  "version": "1.0.0",
+  "description": "tests for app",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx cypres start"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "cypress": "^5.1.0"
+  }
+}
