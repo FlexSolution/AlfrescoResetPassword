@@ -1,10 +1,6 @@
-model.taskId = page.url.args["taskId"];
 model.token = page.url.args["token"];
-model.userToken = page.url.args["userToken"];
 
 var jsonObj = {
-    taskId: model.taskId,
-    user: model.userToken,
     token: model.token
 };
 

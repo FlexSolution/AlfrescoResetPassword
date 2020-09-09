@@ -8,11 +8,12 @@
     </bean>
 
     <bean id="webscript.com.flex-solution.taskIsComplete.taskIsComplete.post" parent="webscript" class="com.flexsolution.resetpassword.webscripts.TaskIsCompletePost">
-        <property name="workflowService" ref="WorkflowService"/>
     </bean>
 
     <bean id="webscript.com.flex-solution.applyChangedPassword.applyChangedPassword.post" parent="webscript" class="com.flexsolution.resetpassword.webscripts.ApplyChangedPasswordPost">
         <property name="workflowService" ref="WorkflowService"/>
+        <property name="authenticationService" ref="AuthenticationService" />
+        <property name="tokenGenerator" ref="genToken" />
     </bean>
 
 </beans>

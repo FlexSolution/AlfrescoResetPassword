@@ -1,5 +1,8 @@
 package com.flexsolution.resetpassword.util;
 
+import org.activiti.engine.HistoryService;
+import org.activiti.engine.history.HistoricTaskInstance;
+import org.activiti.engine.history.HistoricTaskInstanceQuery;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.tenant.TenantContextHolder;
@@ -31,6 +34,7 @@ public class WorkflowHelper {
     private static SearchService searchService;
     private static Repository repository;
     private static NodeService nodeService;
+    private static HistoryService activitiHistoryService;
 
     public static void cancelPreviousWorkflows(final String userName) {
 
@@ -41,7 +45,6 @@ public class WorkflowHelper {
         TenantUtil.runAsUserTenant(new TenantUtil.TenantRunAsWork<Object>() {
             @Override
             public Object doWork() throws Exception {
-                TenantContextHolder.setTenantDomain(tenantDomain);
 
                 List<WorkflowTask> workflowTasks = getTasksInProgress(userName);
 
@@ -64,6 +67,15 @@ public class WorkflowHelper {
                 return null;
             }
         }, userName, tenantDomain);
+    }
+
+    public static List<HistoricTaskInstance> getResetPassTasksByUserToken(String token){
+        HistoricTaskInstanceQuery query = activitiHistoryService.createHistoricTaskInstanceQuery()
+                .includeProcessVariables()
+                .unfinished()
+                .processVariableValueEquals("fs-reset:token", token);
+
+        return query.list();
     }
 
     public static WorkflowDefinition deployResetPasswordWorkflow() {
@@ -143,5 +155,9 @@ public class WorkflowHelper {
 
     public void setNodeService(NodeService nodeService) {
         WorkflowHelper.nodeService = nodeService;
+    }
+
+    public void setActivitiHistoryService (HistoryService activitiHistoryService) {
+        WorkflowHelper.activitiHistoryService = activitiHistoryService;
     }
 }

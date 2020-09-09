@@ -51,7 +51,7 @@
                                                     <p>we received a request for password change
                                                         at ${shareUrl}</p>
 
-                                                    <br/><a href="${shareUrl}/page/changePassWF?userToken=${userToken}&taskId=${taskId}&token=${token}">Go to
+                                                    <br/><a href="${shareUrl}/page/changePassWF?token=${token}">Go to
                                                     this link</a> to set your new password.
                                                     The link will be active for 24 hours.</p>
 

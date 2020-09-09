@@ -17,6 +17,7 @@
         <property name="extensionName">
             <value>token</value>
         </property>
+        <property name="globalProps" ref="global-properties"/>
     </bean>
 
     <bean class="com.flexsolution.resetpassword.util.WorkflowHelper">
@@ -24,6 +25,7 @@
         <property name="searchService" ref="SearchService"/>
         <property name="repository" ref="repositoryHelper"/>
         <property name="nodeService" ref="NodeService"/>
+        <property name="activitiHistoryService" ref="activitiHistoryService"/>
     </bean>
 
 

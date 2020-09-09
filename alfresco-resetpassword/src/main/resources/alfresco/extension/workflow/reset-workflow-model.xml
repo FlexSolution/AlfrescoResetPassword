@@ -29,15 +29,6 @@
             <title>Review</title>
             <parent>bpm:workflowTask</parent>
             <properties>
-                <property name="fs-reset:password">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                </property>
-                <property name="fs-reset:confirmPass">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                </property>
-
                 <property name="fs-reset:token">
                     <type>d:text</type>
                     <mandatory>true</mandatory>

@@ -1,96 +1,125 @@
 package com.flexsolution.resetpassword.webscripts;
 
-import com.flexsolution.resetpassword.namespaces.ResetPasswordNameSpace;
+import com.flexsolution.resetpassword.util.TokenGenerator;
+import com.flexsolution.resetpassword.util.WorkflowHelper;
+import org.activiti.engine.history.HistoricTaskInstance;
+import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.repo.tenant.TenantContextHolder;
 import org.alfresco.repo.tenant.TenantUtil;
+import org.alfresco.repo.workflow.activiti.ActivitiConstants;
+import org.alfresco.service.cmr.security.MutableAuthenticationService;
 import org.alfresco.service.cmr.workflow.WorkflowService;
-import org.alfresco.service.cmr.workflow.WorkflowTask;
-import org.alfresco.service.namespace.QName;
-import org.apache.log4j.Logger;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.extensions.surf.util.Content;
 import org.springframework.extensions.webscripts.*;
 
-import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class ApplyChangedPasswordPost extends DeclarativeWebScript {
 
-    public static final String DOMAIN_PROP = "domain";
-    public static final String TASK_ID = "taskId";
     public static final String NEW_PAS = "new-password";
     public static final String NEW_PAS_CONFIRM = "new-password-confirm";
-    public static final String USER_NAME = "userName";
-    public static final String USER_TOKEN = "userToken";
+    public static final String TOKEN = "userToken";
+
 
     private WorkflowService workflowService;
+    private MutableAuthenticationService authenticationService;
+    private TokenGenerator tokenGenerator;
 
-    private static final Logger logger = Logger.getLogger(ApplyChangedPasswordPost.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApplyChangedPasswordPost.class);
 
     @Override
-    protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache) {
+    protected Map<String, Object> executeImpl (WebScriptRequest req, Status status, Cache cache) {
+
+        final Map<String, String> data = getDataFromRequest(req);
+
+        String pass = data.get(NEW_PAS);
+        String confirmPass = data.get(NEW_PAS_CONFIRM);
+
+        if(!Objects.equals(pass, confirmPass)) {
+            logger.error("Password and confirm password are not equal");
+            throw new AlfrescoRuntimeException("Password and confirm password are not equal");
+        }
+
+        String incomingToken = data.get(TOKEN);
+        List<HistoricTaskInstance> candidateTasks = WorkflowHelper.getResetPassTasksByUserToken(incomingToken);
+
+        if(candidateTasks.isEmpty()) {
+            logger.error("Invalid 'change password' request received. Process by token={} does not exist or has been finished", incomingToken);
+            throw new AlfrescoRuntimeException("Request to change password is not valid");
+        }
+        if(candidateTasks.size() != 1) {
+            logger.error("Found more than one process by token={}", incomingToken);
+            throw new AlfrescoRuntimeException("Request to change password is not valid");
+        }
+        final HistoricTaskInstance historicTaskInstance = candidateTasks.get(0);
+
+        String assignee = historicTaskInstance.getAssignee();
+        String hashForCurrentAssignee = tokenGenerator.getHashFromToken(tokenGenerator.genToken(assignee));
+
+        if(!hashForCurrentAssignee.equals(tokenGenerator.getHashFromToken(incomingToken))) {
+            logger.error("Invalid 'change password' request received. Token={} is not valid for user {}", incomingToken, assignee);
+            throw new AlfrescoRuntimeException("Request to change password is not valid");
+        }
+
+        String tenant_domain = (String) historicTaskInstance.getProcessVariables().get(ActivitiConstants.VAR_TENANT_DOMAIN);
+
+        if(tenant_domain == null) {
+            tenant_domain = "";
+        }
 
         // clear context - to avoid MT concurrency issue (causing domain mismatch)
         AuthenticationUtil.clearCurrentSecurityContext();
 
-        final Map<String,String> data = getDataFromRequest(req);
+        TenantUtil.runAsSystemTenant(new TenantUtil.TenantRunAsWork<Object>() {
 
-        TenantUtil.runAsUserTenant(new TenantUtil.TenantRunAsWork<Object>() {
-                @Override
-                public Object doWork() throws Exception {
-                    TenantContextHolder.setTenantDomain(data.get(DOMAIN_PROP));
+            @Override
+            public Object doWork () throws Exception {
+                String activitiTaskId = "activiti$" + historicTaskInstance.getId();
+                authenticationService.setAuthentication(assignee, pass.toCharArray());
+                workflowService.endTask(activitiTaskId, null);
+                return null;
+            }
+        }, tenant_domain);
 
-                    WorkflowTask task = workflowService.getTaskById(data.get(TASK_ID));
-
-                    final Map<QName,Serializable> properties = task.getProperties();
-                    properties.put(ResetPasswordNameSpace.QNAME_PASSWORD, data.get(NEW_PAS));
-                    properties.put(ResetPasswordNameSpace.QNAME_CONFIRM_PASS, data.get(NEW_PAS_CONFIRM));
-
-                    AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Object>() {
-                        @Override
-                        public Object doWork() throws Exception {
-                            workflowService.updateTask(data.get(TASK_ID), properties, null, null);
-                            workflowService.endTask(data.get(TASK_ID), null);
-                            return null;
-                        }
-                    });
-                    return null;
-                }
-            }, data.get(USER_NAME), data.get(DOMAIN_PROP));
-
-        return new HashMap<>();
+        return new HashMap<String, Object>() {{
+            put("message", "OK");
+        }};
     }
 
-    private Map<String, String> getDataFromRequest(WebScriptRequest req) {
+    private Map<String, String> getDataFromRequest (WebScriptRequest req) {
 
-        HashMap <String, String> result = new HashMap<>();
-
+        HashMap<String, String> result = new HashMap<>();
         Content content = req.getContent();
 
         try {
             JSONObject jsonObject = new JSONObject(content.getContent());
 
-            String userName = jsonObject.getString(USER_TOKEN);
-
-            result.put(USER_NAME, userName);
-            result.put(DOMAIN_PROP, AuthenticationUtil.getUserTenant(userName).getSecond());
-
+            result.put(TOKEN, jsonObject.getString(TOKEN));
             result.put(NEW_PAS, jsonObject.getString(NEW_PAS));
             result.put(NEW_PAS_CONFIRM, jsonObject.getString(NEW_PAS_CONFIRM));
-            result.put(TASK_ID, jsonObject.getString(TASK_ID));
 
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             throw new WebScriptException("Failed to get data from request. Please, contact system administrator");
         }
-
         return result;
-
     }
 
-    public void setWorkflowService(WorkflowService workflowService) {
+    public void setWorkflowService (WorkflowService workflowService) {
         this.workflowService = workflowService;
+    }
+
+    public void setAuthenticationService (MutableAuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
+    }
+
+    public void setTokenGenerator (TokenGenerator tokenGenerator) {
+        this.tokenGenerator = tokenGenerator;
     }
 }

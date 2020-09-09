@@ -2,11 +2,14 @@
 
     <config evaluator="string-compare" condition="Workflow">
         <hidden-workflows>
-            <workflow name="activiti$resetPassword"/>
+            <workflow name="activiti$resetPasswordFlex"/>
         </hidden-workflows>
+        <hidden-tasks>
+            <task type="fs-reset:*"/>
+        </hidden-tasks>
     </config>
 
-    <config evaluator="string-compare" condition="activiti$resetPassword">
+    <config evaluator="string-compare" condition="activiti$resetPasswordFlex">
         <forms>
             <form>
                 <field-visibility>
@@ -21,28 +24,11 @@
         <forms>
             <form>
                 <field-visibility>
-                    <show id="fs-reset:password"/>
-                    <show id="fs-reset:confirmPass"/>
                     <show id="transitions"/>
                 </field-visibility>
 
                 <appearance>
-                    <field id="fs-reset:password" label-id="prop_fs-reset_password">
-                        <control template="/org/alfresco/components/form/controls/textfield.ftl">
-                            <control-param name="password">true</control-param>
-                        </control>
-                    </field>
-
-                    <field id="fs-reset:confirmPass" label-id="prop_fs-reset_confirmPass">
-                        <control template="/com/flex-solution/resetPassword/components/form/controls/passConfirmation.ftl">
-                            <control-param name="password">true</control-param>
-                        </control>
-                    </field>
-
-                    <field id="transitions">
-                        <control template="/com/flex-solution/resetPassword/components/form/controls/wfTransitions.ftl">
-                        </control>
-                    </field>
+                    <field id="transitions"/>
                 </appearance>
             </form>
         </forms>

@@ -1,6 +1,6 @@
 <#if !showError>
 
-    <#assign id="${taskId}"/>
+    <#assign id="rp-comp"/>
 
 
     <@link href="${url.context}/res/extras/com/flex-solution/components/changePassWF.css" group="form"/>
@@ -16,7 +16,7 @@ new Alfresco.component.ChangePassWF("${id}");
 //]]></script>
 
 
-<div id="${id}-parent" class="parent-block" ">
+<div id="${id}-parent" class="parent-block">
 
 <div id="${id}" class="fields">
     <form id="${id}-form" class="formaa"
@@ -35,8 +35,7 @@ new Alfresco.component.ChangePassWF("${id}");
             <span class="formField"><input type="password" maxlength="255" id="${id}-new-password-confirm"
                                            name="new-password-confirm"/></span>
         </div>
-        <input type="hidden" name="taskId" value="${id}">
-        <input type="hidden" name="userToken" value="${userToken}">
+        <input type="hidden" name="userToken" value="${token}">
 
         <div class="buttons">
             <button id="${id}-button-ok" name="save">${msg("form.button.submit")}</button>

@@ -54,7 +54,7 @@ public class ResetPasswordPost extends DeclarativeWebScript {
     private static final Logger logger = Logger.getLogger(ResetPasswordPost.class);
 
     @Override
-    public Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache) {
+    public Map<String, Object> executeImpl (WebScriptRequest req, Status status, Cache cache) {
 
         final String userName = getUserNameFromRequest(req);
 
@@ -66,6 +66,7 @@ public class ResetPasswordPost extends DeclarativeWebScript {
         createEmailTemplateIfNotExists(tenantDomain);
 
         TenantContextHolder.setTenantDomain(tenantDomain);
+        AuthenticationUtil.setRunAsUser(userName);
 
         NodeRef user = getUserByUserName(userName);
 
@@ -73,18 +74,18 @@ public class ResetPasswordPost extends DeclarativeWebScript {
 
         logger.debug("Try to start workflow with user " + userName);
 
-        startWorkFlow(user, AuthenticationUtil.getUserTenant(userName).getSecond());
+        startWorkFlow(user);
 
         logger.debug("Workflow has been started");
 
         return null;
     }
 
-    private void createEmailTemplateIfNotExists(String tenantDomain){
+    private void createEmailTemplateIfNotExists (String tenantDomain) {
         AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Object>() {
             @Override
             public Object doWork () throws Exception {
-                if(!emailTemplateExists(tenantDomain)){
+                if(!emailTemplateExists(tenantDomain)) {
                     addEmailTemplate(tenantDomain);
                 }
                 return null;
@@ -92,98 +93,89 @@ public class ResetPasswordPost extends DeclarativeWebScript {
         });
     }
 
-    private boolean emailTemplateExists(String tenantDomain){
+    private boolean emailTemplateExists (String tenantDomain) {
 
-                TenantContextHolder.setTenantDomain(tenantDomain);
+        TenantContextHolder.setTenantDomain(tenantDomain);
 
-                NodeRef companyHome = repository.getCompanyHome();
+        NodeRef companyHome = repository.getCompanyHome();
 
-                List<NodeRef> emailTemplateFiles = searchService.selectNodes(companyHome, RESET_PASS_EMAIL_TEMPLATE_XPATH, null, namespaceService, false);
+        List<NodeRef> emailTemplateFiles = searchService.selectNodes(companyHome, RESET_PASS_EMAIL_TEMPLATE_XPATH, null, namespaceService, false);
 
-                return !emailTemplateFiles.isEmpty();
+        return !emailTemplateFiles.isEmpty();
     }
 
-    private void addEmailTemplate(String tenantDomain){
+    private void addEmailTemplate (String tenantDomain) {
 
-                TenantContextHolder.setTenantDomain(tenantDomain);
+        TenantContextHolder.setTenantDomain(tenantDomain);
 
-                NodeRef companyHome = repository.getCompanyHome();
+        NodeRef companyHome = repository.getCompanyHome();
 
-                List<NodeRef> workflowNotificationFolder = searchService.selectNodes(companyHome, WORKFLOW_NOTIFICATION_XPATH, null, namespaceService, false);
+        List<NodeRef> workflowNotificationFolder = searchService.selectNodes(companyHome, WORKFLOW_NOTIFICATION_XPATH, null, namespaceService, false);
 
-                Map<QName, Serializable> properties = new HashMap<>();
-                properties.put(ContentModel.PROP_NAME, RESET_PASS_FILE_NAME);
+        Map<QName, Serializable> properties = new HashMap<>();
+        properties.put(ContentModel.PROP_NAME, RESET_PASS_FILE_NAME);
 
-                ChildAssociationRef newEmailTemplateCreated = nodeService.createNode(workflowNotificationFolder.get(0),
-                        ContentModel.ASSOC_CONTAINS,
-                        QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, QName.createValidLocalName(RESET_PASS_FILE_NAME)),
-                        ContentModel.TYPE_CONTENT,
-                        properties);
-                ContentWriter invWriter = contentService.getWriter(newEmailTemplateCreated.getChildRef(), ContentModel.PROP_CONTENT, true);
+        ChildAssociationRef newEmailTemplateCreated = nodeService.createNode(workflowNotificationFolder.get(0),
+                ContentModel.ASSOC_CONTAINS,
+                QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, QName.createValidLocalName(RESET_PASS_FILE_NAME)),
+                ContentModel.TYPE_CONTENT,
+                properties);
+        ContentWriter invWriter = contentService.getWriter(newEmailTemplateCreated.getChildRef(), ContentModel.PROP_CONTENT, true);
 
-                String adminTenant = "";
+        String adminTenant = "";
 
-                TenantContextHolder.setTenantDomain(adminTenant);
+        TenantContextHolder.setTenantDomain(adminTenant);
 
-                companyHome = repository.getCompanyHome();
+        companyHome = repository.getCompanyHome();
 
-                List<NodeRef> emailTemplateFiles = searchService.selectNodes(companyHome, RESET_PASS_EMAIL_TEMPLATE_XPATH, null, namespaceService, false);
+        List<NodeRef> emailTemplateFiles = searchService.selectNodes(companyHome, RESET_PASS_EMAIL_TEMPLATE_XPATH, null, namespaceService, false);
 
-                NodeRef emailTemplate = emailTemplateFiles.get(0);
+        NodeRef emailTemplate = emailTemplateFiles.get(0);
 
-                ContentReader reader = contentService.getReader(emailTemplate, ContentModel.PROP_CONTENT);
+        ContentReader reader = contentService.getReader(emailTemplate, ContentModel.PROP_CONTENT);
 
-                TenantContextHolder.setTenantDomain(tenantDomain);
+        TenantContextHolder.setTenantDomain(tenantDomain);
 
-                invWriter.putContent(reader);
+        invWriter.putContent(reader);
 
     }
 
-    private void startWorkFlow(final NodeRef user, final String tenantDomain) {
-        AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Object>() {
-            @Override
-            public Object doWork() throws Exception {
+    private void startWorkFlow (final NodeRef user) {
 
-                TenantContextHolder.setTenantDomain(tenantDomain);
+        WorkflowDefinition workflowDefinition = workflowService.getDefinitionByName("activiti$resetPasswordFlex");
 
-                WorkflowDefinition workflowDefinition = workflowService.getDefinitionByName("activiti$resetPasswordFlex");
+        if(workflowDefinition == null) {
+            workflowDefinition = WorkflowHelper.deployResetPasswordWorkflow();
+        }
 
-                if (workflowDefinition == null) {
-                    workflowDefinition = WorkflowHelper.deployResetPasswordWorkflow();
-                }
+        Map<QName, Serializable> param = new HashMap<>();
 
-                Map<QName, Serializable> param = new HashMap<>();
+        logger.debug("Try to set assignee");
 
-                logger.debug("Try to set assignee");
+        param.put(WorkflowModel.ASSOC_ASSIGNEE, user);
 
-                param.put(WorkflowModel.ASSOC_ASSIGNEE, user);
+        logger.debug("Assignee: " + param.get(WorkflowModel.ASSOC_ASSIGNEE));
 
-                logger.debug("Assignee: " + param.get(WorkflowModel.ASSOC_ASSIGNEE));
+        logger.debug("Try to set description");
 
-                logger.debug("Try to set description");
+        param.put(WorkflowModel.PROP_DESCRIPTION, "Request to change password");
 
-                param.put(WorkflowModel.PROP_DESCRIPTION, "Request to change password");
+        logger.debug("Try to set owner");
 
-                logger.debug("Try to set owner");
+        param.put(ContentModel.PROP_OWNER, AuthenticationUtil.getAdminUserName());
 
-                param.put(ContentModel.PROP_OWNER, user);
+        logger.debug("Try to start workflow...");
 
-                logger.debug("Try to start workflow...");
-
-                workflowService.startWorkflow(workflowDefinition.getId(), param);
-
-                return null;
-            }
-        });
+        workflowService.startWorkflow(workflowDefinition.getId(), param);
     }
 
-    private NodeRef getUserByUserName(final String userName) {
+    private NodeRef getUserByUserName (final String userName) {
 
         return AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<NodeRef>() {
             @Override
-            public NodeRef doWork() throws Exception {
+            public NodeRef doWork () throws Exception {
                 NodeRef user = personService.getPersonOrNull(userName);
-                if (user == null) {
+                if(user == null) {
                     logger.error("Failed to find user with username " + userName);
                     throw new WebScriptException(404, "error.userNotFound");
                 }
@@ -192,7 +184,7 @@ public class ResetPasswordPost extends DeclarativeWebScript {
         });
     }
 
-    private String getUserNameFromRequest(WebScriptRequest request) {
+    private String getUserNameFromRequest (WebScriptRequest request) {
         Content content = request.getContent();
 
         String userName;
@@ -210,11 +202,11 @@ public class ResetPasswordPost extends DeclarativeWebScript {
         return userName;
     }
 
-    public void setWorkflowService(WorkflowService workflowService) {
+    public void setWorkflowService (WorkflowService workflowService) {
         this.workflowService = workflowService;
     }
 
-    public void setPersonService(PersonService personService) {
+    public void setPersonService (PersonService personService) {
         this.personService = personService;
     }
 }
