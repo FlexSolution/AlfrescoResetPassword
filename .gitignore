@@ -3,3 +3,4 @@
 /_docker/logs.txt
 /alfresco-resetpassword/target/
 /share-resetpassword/target/
+/node_modules
