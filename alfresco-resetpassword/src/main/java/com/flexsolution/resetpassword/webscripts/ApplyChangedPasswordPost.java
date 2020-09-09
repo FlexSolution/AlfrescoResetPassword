@@ -47,7 +47,7 @@ public class ApplyChangedPasswordPost extends DeclarativeWebScript {
         }
 
         String incomingToken = data.get(TOKEN);
-        List<HistoricTaskInstance> candidateTasks = WorkflowHelper.getResetPassTasksByUserToken(incomingToken);
+        List<HistoricTaskInstance> candidateTasks = WorkflowHelper.getResetPassTasksByUserTokenAcrossTenants(incomingToken);
 
         if(candidateTasks.isEmpty()) {
             logger.error("Invalid 'change password' request received. Process by token={} does not exist or has been finished", incomingToken);

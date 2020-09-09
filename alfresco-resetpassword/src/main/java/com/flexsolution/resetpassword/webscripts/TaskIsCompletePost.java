@@ -33,7 +33,7 @@ public class TaskIsCompletePost extends DeclarativeWebScript {
                 throw new AlfrescoRuntimeException("Request to change password is not valid");
             }
 
-            List<HistoricTaskInstance> cnadidateTasks = WorkflowHelper.getResetPassTasksByUserToken(resetPasswordToken);
+            List<HistoricTaskInstance> cnadidateTasks = WorkflowHelper.getResetPassTasksByUserTokenAcrossTenants(resetPasswordToken);
 
             if(cnadidateTasks.isEmpty()) {
                 logger.error("Invalid 'change password' request received. Process by token={} does not exist or has been finished", resetPasswordToken);

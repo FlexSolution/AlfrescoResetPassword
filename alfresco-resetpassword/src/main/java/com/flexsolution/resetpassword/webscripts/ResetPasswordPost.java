@@ -13,9 +13,10 @@ import org.alfresco.service.cmr.workflow.WorkflowDefinition;
 import org.alfresco.service.cmr.workflow.WorkflowService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
-import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.surf.util.Content;
 import org.springframework.extensions.webscripts.*;
@@ -51,7 +52,7 @@ public class ResetPasswordPost extends DeclarativeWebScript {
 
     private static final String RESET_PASS_FILE_NAME = "reset-password.ftl";
 
-    private static final Logger logger = Logger.getLogger(ResetPasswordPost.class);
+    private static final Logger logger = LoggerFactory.getLogger(ResetPasswordPost.class);
 
     @Override
     public Map<String, Object> executeImpl (WebScriptRequest req, Status status, Cache cache) {
@@ -145,7 +146,8 @@ public class ResetPasswordPost extends DeclarativeWebScript {
         WorkflowDefinition workflowDefinition = workflowService.getDefinitionByName("activiti$resetPasswordFlex");
 
         if(workflowDefinition == null) {
-            workflowDefinition = WorkflowHelper.deployResetPasswordWorkflow();
+            logger.error("Workflow definition is not found activiti$resetPasswordFlex");
+            throw new WebScriptException(500, "Sorry. Internal error. Try later");
         }
 
         Map<QName, Serializable> param = new HashMap<>();
@@ -154,7 +156,7 @@ public class ResetPasswordPost extends DeclarativeWebScript {
 
         param.put(WorkflowModel.ASSOC_ASSIGNEE, user);
 
-        logger.debug("Assignee: " + param.get(WorkflowModel.ASSOC_ASSIGNEE));
+        logger.debug("Assignee: {}", param.get(WorkflowModel.ASSOC_ASSIGNEE));
 
         logger.debug("Try to set description");
 
@@ -176,7 +178,7 @@ public class ResetPasswordPost extends DeclarativeWebScript {
             public NodeRef doWork () throws Exception {
                 NodeRef user = personService.getPersonOrNull(userName);
                 if(user == null) {
-                    logger.error("Failed to find user with username " + userName);
+                    logger.error("Failed to find user with username={}", userName);
                     throw new WebScriptException(404, "error.userNotFound");
                 }
                 return user;
@@ -195,7 +197,7 @@ public class ResetPasswordPost extends DeclarativeWebScript {
             userName = jsonObject.getString("userName");
 
         } catch (JSONException | IOException e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             throw new WebScriptException(500, "Sorry. Internal error. Try later");
         }
 
