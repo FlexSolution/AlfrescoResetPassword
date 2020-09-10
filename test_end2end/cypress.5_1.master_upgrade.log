@@ -1,0 +1,128 @@
+Warning: We failed to remove old browser profiles from previous runs.
+
+This error will not alter the exit code.
+
+Error: EACCES: permission denied, scandir '/home/developer24/.config/Cypress/Partitions'
+
+================================================================================
+
+  (Run Starting)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Cypress:    5.1.0                                                                              │
+  │ Browser:    Chrome 83 (headless)                                                               │
+  │ Specs:      2 found (Alfresco/reset-password.spec.js, Alfresco/verification test.spec..js)     │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  Alfresco/reset-password.spec.js                                                 (1 of 2)
+
+
+  PASSWORD RESET CHECK V_2
+    ✓ Tenant create (1423ms)
+    Main reset tests
+      ✓ User friendly exception is shown on invalid username (2447ms)
+      ✓  Success message is shown on valid username (6875ms)
+      1) Reset password and login using new password
+
+
+  3 passing (23s)
+  1 failing
+
+  1) PASSWORD RESET CHECK V_2
+       Main reset tests
+         Reset password and login using new password:
+
+      Timed out retrying
+      + expected - actual
+
+      -'08140012 Wrapped Exception (with status template): Exception while invoking TaskListener: Exception while invoking TaskListener: 08140091 Failed to execute supplied script: 08140090 Can\'t find method com.flexsolution.resetpassword.util.Sudo.asTenant(string,org.mozilla.javascript.Undefined,object). (AlfrescoJS#62)xx'
+      +'Password has been changedxx'
+      
+      at eval (http://192.168.0.101:8100/__cypress/tests?p=cypress/integration/Alfresco/reset-password.spec.js:479:19)
+      at Context.eval (http://192.168.0.101:8100/__cypress/tests?p=cypress/integration/Alfresco/reset-password.spec.js:640:7)
+
+
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        4                                                                                │
+  │ Passing:      3                                                                                │
+  │ Failing:      1                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      0                                                                                │
+  │ Screenshots:  1                                                                                │
+  │ Video:        true                                                                             │
+  │ Duration:     23 seconds                                                                       │
+  │ Spec Ran:     Alfresco/reset-password.spec.js                                                  │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+  (Screenshots)
+
+  -  /home/developer24/Desktop/Project/AlfrescoResetPassword/test_end2end/cypress/scr     (1280x720)
+     eenshots/Alfresco/reset-password.spec.js/PASSWORD RESET CHECK V_2 -- Main reset                
+     tests -- Reset password and login using new password (failed).png                              
+
+
+  (Video)
+
+  -  Started processing:  Compressing to 32 CRF                                                     
+  -  Finished processing: /home/developer24/Desktop/Project/AlfrescoResetPassword/tes     (1 second)
+                          t_end2end/cypress/videos/Alfresco/reset-password.spec.js.mp               
+                          4                                                                         
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  Alfresco/verification test.spec..js                                             (2 of 2)
+
+
+  First test
+    ✓ Flex visit (958ms)
+    ✓ URL address is correct
+
+
+  2 passing (2s)
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        2                                                                                │
+  │ Passing:      2                                                                                │
+  │ Failing:      0                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      0                                                                                │
+  │ Screenshots:  0                                                                                │
+  │ Video:        true                                                                             │
+  │ Duration:     2 seconds                                                                        │
+  │ Spec Ran:     Alfresco/verification test.spec..js                                              │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+  (Video)
+
+  -  Started processing:  Compressing to 32 CRF                                                     
+  -  Finished processing: /home/developer24/Desktop/Project/AlfrescoResetPassword/tes    (0 seconds)
+                          t_end2end/cypress/videos/Alfresco/verification test.spec..j               
+                          s.mp4                                                                     
+
+
+================================================================================
+
+  (Run Finished)
+
+
+       Spec                                              Tests  Passing  Failing  Pending  Skipped  
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ✖  Alfresco/reset-password.spec.js          00:23        4        3        1        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔  Alfresco/verification test.spec..js      00:02        2        2        -        -        - │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+    ✖  1 of 2 failed (50%)                      00:25        6        5        1        -        -  
+

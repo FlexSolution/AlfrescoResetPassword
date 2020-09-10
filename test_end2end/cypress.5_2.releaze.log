@@ -1,0 +1,64 @@
+
+====================================================================================================
+
+  (Run Starting)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Cypress:    5.1.0                                                                              │
+  │ Browser:    Chrome 83 (headless)                                                               │
+  │ Specs:      1 found (Alfresco/reset-password.spec-V5.2.js)                                     │
+  │ Searched:   cypress/integration/Alfresco/reset-password.spec-V5.2.js                           │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Running:  Alfresco/reset-password.spec-V5.2.js                                            (1 of 1)
+
+
+  PASSWORD RESET CHECK V_5.2
+    ✓ Tenant create (1217ms)
+    Main reset tests
+      ✓ User friendly exception is shown on invalid username (3106ms)
+      ✓  Success message is shown on valid username (5669ms)
+      ✓ Reset password and login using new password (8365ms)
+      ✓ Check authentication bypass is forbidden (4688ms)
+
+
+  5 passing (25s)
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        5                                                                                │
+  │ Passing:      5                                                                                │
+  │ Failing:      0                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      0                                                                                │
+  │ Screenshots:  0                                                                                │
+  │ Video:        true                                                                             │
+  │ Duration:     24 seconds                                                                       │
+  │ Spec Ran:     Alfresco/reset-password.spec-V5.2.js                                             │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+  (Video)
+
+  -  Started processing:  Compressing to 32 CRF
+  -  Finished processing: /home/developer24/Desktop/Project/AlfrescoResetPassword/tes     (1 second)
+                          t_end2end/cypress/videos/Alfresco/reset-password.spec-V5.2.
+                          js.mp4
+
+
+====================================================================================================
+
+  (Run Finished)
+
+
+       Spec                                              Tests  Passing  Failing  Pending  Skipped
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ✔  Alfresco/reset-password.spec-V5.2.j      00:24        5        5        -        -        - │
+  │    s                                                                                           │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+    ✔  All specs passed!                        00:24        5        5        -        -        -

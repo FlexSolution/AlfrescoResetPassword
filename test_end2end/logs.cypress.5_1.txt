@@ -1,0 +1,21 @@
+Warning: We failed to remove old browser profiles from previous runs.
+
+This error will not alter the exit code.
+
+Error: EACCES: permission denied, scandir '/home/developer24/.config/Cypress/Partitions'
+
+====================================================================================================
+
+  (Run Starting)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Cypress:    5.1.0                                                                              │
+  │ Browser:    Chrome 83 (headless)                                                               │
+  │ Specs:      3 found (Alfresco/1.spec.js, Alfresco/reset-password.spec-V5.1.js, Alfresco/reset- │
+  │             password.spec-V5.2.js)                                                             │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  Alfresco/1.spec.js                                                              (1 of 3)
