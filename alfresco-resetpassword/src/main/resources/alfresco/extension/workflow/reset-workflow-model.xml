@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model name="fs-reset:resetWorkflowModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+    <description>Reset Workflow Model</description>
+    <author>s.palyukh</author>
+    <version>1.0</version>
+
+    <imports>
+        <!-- Import Alfresco Dictionary Definitions -->
+        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
+        <!-- Import Alfresco Workflow Model Definitions -->
+        <import uri="http://www.alfresco.org/model/bpm/1.0" prefix="bpm"/>
+    </imports>
+
+    <namespaces>
+        <namespace uri="https://flex-solution.com/model/workflow/1.0" prefix="fs-reset"/>
+    </namespaces>
+
+    <types>
+
+        <type name="fs-reset:start">
+            <parent>bpm:startTask</parent>
+            <mandatory-aspects>
+                <aspect>bpm:assignee</aspect>
+            </mandatory-aspects>
+        </type>
+
+        <type name="fs-reset:review">
+            <title>Review</title>
+            <parent>bpm:workflowTask</parent>
+            <properties>
+                <property name="fs-reset:token">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+
+            </properties>
+            <overrides>
+                <property name="bpm:reassignable">
+                    <default>false</default>
+                </property>
+            </overrides>
+        </type>
+    </types>
+</model>
+

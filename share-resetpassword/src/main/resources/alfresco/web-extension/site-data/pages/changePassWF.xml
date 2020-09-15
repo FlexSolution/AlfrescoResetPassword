@@ -1,0 +1,8 @@
+<page>
+    <title>Change password</title>
+    <!--<title-id>page.changePassword.title</title-id>-->
+    <description>Page for changing password </description>
+    <!--<description-id>page.changePassword.description</description-id>-->
+    <template-instance>changePassWF</template-instance>
+    <authentication>none</authentication>
+</page>

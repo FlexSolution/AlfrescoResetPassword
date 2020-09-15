@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <bean id="patch.copyEmailTemplate" class="com.flexsolution.resetpassword.patch.CopyStructurePatch"
+          parent="basePatch">
+        <property name="id" value="patch.copyEmailTemplate"/>
+        <property name="description" value="Copy EmailTemplate"/>
+        <property name="fixesFromSchema" value="0"/>
+        <property name="fixesToSchema" value="${version.schema}"/>
+        <property name="targetSchema" value="100005"/>
+        <property name="fileFolderService" ref="FileFolderService"/>
+        <property name="repository" ref="repositoryHelper"/>
+        <property name="contentService" ref="ContentService"/>
+        <property name="mimetypeService" ref="mimetypeService"/>
+        <property name="globalProps" ref="global-properties"/>
+        <property name="classpathLocaiton" value="alfresco/module/resetPassword/bootstrap/emailTemplate"/>
+        <property name="copyToXpath" value="/${spaces.company_home.childname}/${spaces.dictionary.childname}/${spaces.templates.email.childname}/cm:workflownotification"/>
+
+    </bean>
+
+
+</beans>

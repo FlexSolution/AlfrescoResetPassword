@@ -1,0 +1,142 @@
+
+version: "2"
+
+services:
+    alfresco-resetpassword:
+        # image: alfresco/alfresco-content-repository-community:6.2.0-ga
+        build: ./../alfresco-resetpassword
+        environment:
+            CATALINA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:8888"
+            JAVA_OPTS : "
+                -Ddb.driver=org.postgresql.Driver
+                -Ddb.username=alfresco
+                -Ddb.password=alfresco
+                -Ddb.url=jdbc:postgresql://postgres-resetpassword:5432/alfresco
+                -Dsolr.host=solr6-resetpassword
+                -Dsolr.port=8983
+                -Dsolr.secureComms=none
+                -Dsolr.base.url=/solr
+                -Dindex.subsystem.name=solr6
+
+                -Ddeployment.method=DOCKER_COMPOSE
+                -Dcsrf.filter.enabled=false
+                -Dmessaging.subsystem.autoStart=false
+
+                -Dlocal.transform.service.enabled=true
+                -DlocalTransform.pdfrenderer.url=http://alfresco-pdf-renderer:8090/
+                -DlocalTransform.imagemagick.url=http://imagemagick:8090/
+                -DlocalTransform.libreoffice.url=http://libreoffice:8090/
+                -DlocalTransform.tika.url=http://tika:8090/
+                -DlocalTransform.misc.url=http://transform-misc:8090/
+                -Dlegacy.transform.service.enabled=true
+                -Dalfresco-pdf-renderer.url=http://alfresco-pdf-renderer:8090/
+                -Djodconverter.url=http://libreoffice:8090/
+                -Dimg.url=http://imagemagick:8090/
+                -Dtika.url=http://tika:8090/
+                -Dtransform.misc.url=http://transform-misc:8090/
+
+                -Xms1500m -Xmx1500m
+                "
+        ports:
+            - 8082:8080 #Browser port
+            - 5005:8888
+            - 2121:2121
+        links:
+            - postgres-resetpassword
+        volumes:
+            - alf_data-resetpassword:/usr/local/tomcat/alf_data
+            - ./../alfresco-resetpassword/_lib:/usr/local/tomcat/webapps/alfresco/development/lib
+            - ./../alfresco-resetpassword/target/classes:/usr/local/tomcat/webapps/alfresco/development/classes
+            - ./../alfresco-resetpassword/context.xml:/usr/local/tomcat/webapps/alfresco/META-INF/context.xml
+
+    alfresco-pdf-renderer:
+        image: alfresco/alfresco-pdf-renderer:2.1.0
+        mem_limit: 1g
+        environment:
+            JAVA_OPTS: " -Xms256m -Xmx512m"
+        expose:
+            - 8090
+
+    imagemagick:
+        image: alfresco/alfresco-imagemagick:2.1.0
+        mem_limit: 1g
+        environment:
+            JAVA_OPTS: " -Xms256m -Xmx512m"
+        expose:
+            - 8090
+
+    libreoffice:
+        image: alfresco/alfresco-libreoffice:2.1.0
+        mem_limit: 1g
+        environment:
+            JAVA_OPTS: " -Xms256m -Xmx512m"
+        expose:
+            - 8090
+
+    tika:
+        image: alfresco/alfresco-tika:2.1.0
+        mem_limit: 1g
+        environment:
+            JAVA_OPTS: " -Xms256m -Xmx512m"
+        expose:
+            - 8090
+
+    transform-misc:
+        image: alfresco/alfresco-transform-misc:2.1.0
+        mem_limit: 1g
+        environment:
+            JAVA_OPTS: " -Xms256m -Xmx512m"
+        expose:
+            - 8090
+
+
+    share-resetpassword:
+        # image: alfresco/alfresco-share:6.2.0
+        build: ./../share-resetpassword
+        environment:
+            - REPO_HOST=alfresco-resetpassword
+            - REPO_PORT=8080
+            - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5006
+        ports:
+            - 8080:8080
+            - 5006:5006
+        volumes:
+            - ./../share-resetpassword/_lib:/usr/local/tomcat/webapps/share/development/lib
+            - ./../share-resetpassword/target/classes:/usr/local/tomcat/webapps/share/development/classes
+            - ./../share-resetpassword/context.xml:/usr/local/tomcat/webapps/share/META-INF/context.xml
+            - ./../share-resetpassword/src/main/resources/web:/usr/local/tomcat/webapps/share/development/web
+
+    postgres-resetpassword:
+        image: postgres:11.4
+        environment:
+            - POSTGRES_PASSWORD=alfresco
+            - POSTGRES_USER=alfresco
+            - POSTGRES_DB=alfresco
+        command: postgres -c max_connections=300 -c log_min_messages=LOG
+        ports:
+            - 5435:5432
+
+    solr6-resetpassword:
+        image: alfresco/alfresco-search-services:1.4.0
+        environment:
+            #Solr needs to know how to register itself with Alfresco
+            - SOLR_ALFRESCO_HOST=alfresco-resetpassword
+            - SOLR_ALFRESCO_PORT=8080
+            #Alfresco needs to know how to call solr
+            - SOLR_SOLR_HOST=solr6-resetpassword
+            - SOLR_SOLR_PORT=8983
+            #Create the default alfresco and archive cores
+            - SOLR_CREATE_ALFRESCO_DEFAULTS=alfresco,archive
+            - ALFRESCO_SECURE_COMMS=none
+        ports:
+            - 8983
+
+    activemq-resetpassword:
+        image: alfresco/alfresco-activemq:5.15.8
+        ports:
+            - 8161 # Web Console
+            - 5672 # AMQP
+            - 61616 # OpenWire
+            - 61613 # STOMP
+volumes:
+    alf_data-resetpassword:

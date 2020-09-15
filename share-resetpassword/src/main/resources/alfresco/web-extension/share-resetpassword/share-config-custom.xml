@@ -1,0 +1,36 @@
+<alfresco-config>
+
+    <config evaluator="string-compare" condition="Workflow">
+        <hidden-workflows>
+            <workflow name="activiti$resetPasswordFlex"/>
+        </hidden-workflows>
+        <hidden-tasks>
+            <task type="fs-reset:*"/>
+        </hidden-tasks>
+    </config>
+
+    <config evaluator="string-compare" condition="activiti$resetPasswordFlex">
+        <forms>
+            <form>
+                <field-visibility>
+                    <show id="bpm:workflowDescription"/>
+                    <show id="bpm:assignee"/>
+                </field-visibility>
+            </form>
+        </forms>
+    </config>
+
+    <config evaluator="task-type" condition="fs-reset:review">
+        <forms>
+            <form>
+                <field-visibility>
+                    <show id="transitions"/>
+                </field-visibility>
+
+                <appearance>
+                    <field id="transitions"/>
+                </appearance>
+            </form>
+        </forms>
+    </config>
+</alfresco-config>
