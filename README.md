@@ -26,9 +26,11 @@ Alfresco Reset Password add-on is a great thing that allows you to solve missing
  ![](readme_resources/3-config.png)
 
 # Compatibility was tested on versions:
+ - Alfresco 5.0d
+ - Alfresco 5.1
  - Alfresco 5.2
- - Alfresco 6.0.7
- - Alfresco 6.2.0
+ - Alfresco 6.0.7-ga
+ - Alfresco 6.2.0-ga
 
 # How to build
 ### The following tools must be installed:
