@@ -1,0 +1,7 @@
+POST http://localhost:8080/share/page/index
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic YWRtaW46YWRtaW4=
+
+reset=on
+
+###

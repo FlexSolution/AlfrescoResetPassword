@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+
+<beans>
+    <bean id="webscript.com.flex-solution.reset-password.reset-password.post" parent="webscript" class="com.flexsolution.resetpassword.webscripts.ResetPasswordPost">
+        <property name="workflowService" ref="WorkflowService"/>
+        <property name="personService" ref="PersonService"/>
+    </bean>
+
+    <bean id="webscript.com.flex-solution.taskIsComplete.taskIsComplete.post" parent="webscript" class="com.flexsolution.resetpassword.webscripts.TaskIsCompletePost">
+    </bean>
+
+    <bean id="webscript.com.flex-solution.applyChangedPassword.applyChangedPassword.post" parent="webscript" class="com.flexsolution.resetpassword.webscripts.ApplyChangedPasswordPost">
+        <property name="workflowService" ref="WorkflowService"/>
+        <property name="authenticationService" ref="AuthenticationService" />
+        <property name="tokenGenerator" ref="genToken" />
+    </bean>
+
+</beans>

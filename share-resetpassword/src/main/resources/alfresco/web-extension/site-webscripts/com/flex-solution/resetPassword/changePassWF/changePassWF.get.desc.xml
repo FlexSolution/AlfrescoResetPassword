@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Change password form</shortname>
+    <description>Return change password form</description>
+    <url>/com/flex-solution/resetPassword/changePassWF</url>
+    <authentication>none</authentication>
+    <format default="html"/>
+</webscript>

@@ -26,13 +26,15 @@ Alfresco Reset Password add-on is a great thing that allows you to solve missing
  ![](readme_resources/3-config.png)
 
 # Compatibility was tested on versions:
+ - Alfresco 5.0d
+ - Alfresco 5.1
  - Alfresco 5.2
- - Alfresco 6.0.7
- - Alfresco 6.2.0
+ - Alfresco 6.0.7-ga
+ - Alfresco 6.2.0-ga
 
 # How to build
 ### The following tools must be installed:
-- Java8
+- Java11
 - Maven3
 
 ### Required settings
@@ -48,6 +50,9 @@ Alfresco Reset Password add-on is a great thing that allows you to solve missing
    mail.from.enabled=false
    mail.from.default={default sending email}
    ```
+- It is highly recommended to change secure salt property as well that us used in token generation.
+To generate new one use any BCrypt hash generator. First 29 characters is salt
+```fs.passreset.salt=```
 
 ### Build steps
 1. Clone repo
@@ -72,12 +77,33 @@ $ mvn clean package
 
 1. Compile AMPs for alfresco and share how described above
 2. Stop Alfresco
-3. Copy file ResetPasswordAddon/resetPassword/target/reset-password-repo.amp into ${Alfresco_HOME}/amps folder
-4. Copy file ResetPasswordAddon/resetPassword-share/target/reset-password-share.amp into ${Alfresco_HOME}/amps_share folder
+3. Copy file ResetPasswordAddon/resetPassword/target/reset-password-repo-${version}.amp into ${Alfresco_HOME}/amps folder
+4. Copy file ResetPasswordAddon/resetPassword-share/target/reset-password-share-${version}.amp into ${Alfresco_HOME}/amps_share folder
 5. Apply AMPs by executing command from command line
 ```sh
 $ cd ${Alfresco_HOME}/bin
 $ apply_amps.sh -force
 ```
 6. Start Alfresco
+
+##How to setup dev environment:
+You need to have installed docker and configured to use without root privileges https://docs.docker.com/install
+
+1. Add **Remote** Debugger cofiguration.
+![](readme_resources/1-configuration.png)
+
+1. Configure **Before launch: Tool window** and point at **start.sh** or **start.bat** as executable script.
+(files within _docker folder should be executable).
+![](readme_resources/4-configuration.png)
+![](readme_resources/2-configuration.png)
+
+1. Point at **logs.txt** as logs file.
+![](readme_resources/3-configuration.png)
+
+All alfresco configuration placed in **docker-compose.yml**. You can place additional configuration there if you need
+
+To stop docker containers use **stop-all.sh** or **stop-all.bat** script.
+**start.sh|bat** script also stops containers and starts again
+
+To debug Share app java code create new **Remote** configuration. Use port 5006
 

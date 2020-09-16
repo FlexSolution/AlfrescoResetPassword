@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.flex-solution</groupId>
+    <artifactId>resetpassword</artifactId>
+    <version>1.2.0.RC1</version>
+    <name>all in one</name>
+    <packaging>pom</packaging>
+
+
+    <repositories>
+        <repository>
+            <id>alfresco-public</id>
+            <url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>alfresco-public</id>
+            <name>Alfresco</name>
+            <url>http://artifacts.alfresco.com/nexus/content/repositories/releases</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+  <modules>
+    <module>alfresco-resetpassword</module>
+    <module>share-resetpassword</module>
+  </modules>
+</project>

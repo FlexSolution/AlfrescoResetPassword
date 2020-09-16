@@ -1,4 +1,5 @@
 *.iml
 /.idea/
-/resetPassword/target/
-/resetPassword-share/target/
+/_docker/logs.txt
+/alfresco-resetpassword/target/
+/share-resetpassword/target/

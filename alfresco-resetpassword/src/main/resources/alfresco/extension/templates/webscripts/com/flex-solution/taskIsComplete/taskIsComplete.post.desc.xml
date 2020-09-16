@@ -1,0 +1,8 @@
+<webscript>
+    <shortname>get-userName</shortname>
+    <description>Return change password task assignee</description>
+    <url>/com/flex-solution/taskIsComplete</url>
+    <format default="json"/>
+    <authentication runas="admin">none</authentication>
+    <transaction>required</transaction>
+</webscript>
