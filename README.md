@@ -86,7 +86,7 @@ $ apply_amps.sh -force
 ```
 6. Start Alfresco
 
-##How to setup dev environment:
+## How to setup dev environment:
 You need to have installed docker and configured to use without root privileges https://docs.docker.com/install
 
 1. Add **Remote** Debugger cofiguration.
