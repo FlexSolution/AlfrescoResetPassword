@@ -5,11 +5,11 @@
     <parent>
         <artifactId>resetpassword</artifactId>
         <groupId>com.flex-solution</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>reset-password-share</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.3.0-SNAPSHOT</version>
     <name>Reset Password Share AMP</name>
     <packaging>jar</packaging>
 
